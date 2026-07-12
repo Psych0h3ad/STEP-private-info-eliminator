@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>STEP Sanitizer — STEPファイルの識別情報をブラウザ内で除去</title>
-<meta name="description" content="STEP (ISO 10303-21) ファイルから作成者・CADソフト名・日時などの個人識別メタデータを除去します。処理はすべてブラウザ内で完結し、ファイルはどこにも送信されません。">
+<meta name="description" content="STEP (ISO 10303-21) ファイルから作成者・CADソフト名・日時などの個人識別メタデータを除去します。処理はすべてブラウザ内で完結し、ファイルはどこにも送信されません。 Remove identifying metadata from STEP files, entirely in your browser.">
 <style>
 :root{
   --paper:#F2F4F0;
@@ -18,7 +18,7 @@
   --ok:#2B7A55;
   --ok-bg:#E8F2EB;
   --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Courier New",monospace;
-  --sans:"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP","Yu Gothic UI","Yu Gothic","Meiryo",system-ui,-apple-system,sans-serif;
+  --sans:"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP","Yu Gothic UI","Yu Gothic","Meiryo","PingFang SC","Microsoft YaHei",system-ui,-apple-system,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}
@@ -33,13 +33,20 @@ body{
   line-height:1.65;
   font-size:15px;
 }
-.wrap{max-width:860px;margin:0 auto;padding:48px 20px 72px}
+.wrap{max-width:860px;margin:0 auto;padding:40px 20px 72px}
 a{color:var(--ink)}
 .mono{font-family:var(--mono);font-size:.92em}
 button{font-family:var(--sans)}
 
-/* ---- masthead ---- */
-.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.22em;color:var(--muted);margin-bottom:14px}
+/* ---- topbar & masthead ---- */
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.22em;color:var(--muted)}
+.langs{display:flex;border:1px solid var(--line);border-radius:2px;overflow:hidden;background:var(--panel)}
+.langs button{font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;padding:5px 11px;border:none;background:transparent;color:var(--muted);cursor:pointer}
+.langs button + button{border-left:1px solid var(--line)}
+.langs button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.langs button:hover{color:var(--ink)}
+.langs button[aria-pressed="true"]:hover{color:var(--paper)}
 h1{font-size:clamp(34px,6vw,52px);font-weight:800;letter-spacing:-.015em;line-height:1.12}
 .lede{margin-top:12px;font-size:16px;max-width:44em}
 .assure{list-style:none;display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
@@ -95,7 +102,7 @@ h1{font-size:clamp(34px,6vw,52px);font-weight:800;letter-spacing:-.015em;line-he
 .hdr-t .k{width:9.5em;color:var(--muted);font-family:var(--mono);font-size:12px;padding-top:10px;white-space:nowrap}
 .hdr-t .v{font-family:var(--mono);word-break:break-all}
 .hdr-t .v.empty{color:var(--muted)}
-.hdr-t .c{width:5.5em;text-align:right;white-space:nowrap}
+.hdr-t .c{width:6.5em;text-align:right;white-space:nowrap}
 tr.hit .v{color:var(--mark)}
 .chip{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;padding:2px 8px;border-radius:2px}
 .chip.mark{color:var(--mark);background:var(--mark-bg)}
@@ -153,12 +160,12 @@ button:focus-visible,.drop:focus-visible,a:focus-visible,summary:focus-visible{o
 /* ---- footer ---- */
 footer{margin-top:44px;border-top:1px solid var(--line);padding-top:22px;font-size:13px;color:var(--muted)}
 footer h2{font-size:12px;letter-spacing:.18em;color:var(--ink);margin:18px 0 6px}
-footer h2:first-child{margin-top:0}
+footer h2:first-of-type{margin-top:0}
 footer p{max-width:52em}
 .credit{margin-top:22px;font-family:var(--mono);font-size:11.5px;letter-spacing:.06em}
 
 @media (max-width:560px){
-  .wrap{padding:34px 14px 56px}
+  .wrap{padding:28px 14px 56px}
   .panel{padding:20px 16px 22px}
   .hdr-t .k{width:7em}
   .hdr-t td{padding:7px 6px}
@@ -169,79 +176,86 @@ footer p{max-width:52em}
 <div class="wrap">
 
 <header>
-  <div class="eyebrow">3DPcoLAB TOOLS / PRIVACY</div>
+  <div class="topbar">
+    <div class="eyebrow">3DPcoLAB TOOLS / PRIVACY</div>
+    <div class="langs" role="group" aria-label="Language">
+      <button type="button" data-lang="ja">日本語</button>
+      <button type="button" data-lang="en">EN</button>
+      <button type="button" data-lang="zh">中文</button>
+    </div>
+  </div>
   <h1>STEP Sanitizer</h1>
-  <p class="lede">STEP ファイルには、作成者名・CADソフト・作業日時・フィーチャー名などの識別情報が埋め込まれています。このツールはそれらを検出して除去します。形状データは1バイトも変更しません。</p>
+  <p class="lede" data-i18n="lede"></p>
   <ul class="assure">
-    <li>ファイルは送信されません(全処理がブラウザ内)</li>
-    <li>オフラインでも動作</li>
-    <li>ジオメトリ無変更</li>
+    <li data-i18n="assure1"></li>
+    <li data-i18n="assure2"></li>
+    <li data-i18n="assure3"></li>
   </ul>
 </header>
 
-<div id="drop" class="drop" tabindex="0" role="button" aria-label="STEPファイルを選択またはドロップ">
+<div id="drop" class="drop" tabindex="0" role="button" data-i18n-aria="ariaDrop">
   <div class="drop-ext">.STEP / .STP</div>
-  <div class="drop-msg" id="dropMsg">ここにファイルをドロップ、またはクリックして選択</div>
-  <div class="drop-sub">ISO 10303-21 テキスト形式 / 目安 100 MB 程度まで</div>
+  <div class="drop-msg" id="dropMsg"></div>
+  <div class="drop-sub" data-i18n="dropSub"></div>
 </div>
 <input type="file" id="fileInput" accept=".step,.stp,.p21,.ste,.STEP,.STP" hidden>
 <p id="err" class="err" hidden></p>
 
 <section id="reportSec" class="panel" hidden aria-live="polite">
-  <h2 class="sec-t">検出結果</h2>
+  <h2 class="sec-t" data-i18n="secScan"></h2>
   <div class="fileline mono" id="fileLine"></div>
   <div class="sub-t">HEADER</div>
   <table class="hdr-t"><tbody id="hdrBody"></tbody></table>
   <div class="sub-t">DATA</div>
   <div id="dataBody"></div>
   <details id="otherWrap" hidden>
-    <summary>その他の文字列(目視チェック用)</summary>
+    <summary data-i18n="otherSummary"></summary>
     <div class="strlist" id="otherList"></div>
   </details>
 </section>
 
 <section id="optSec" class="panel" hidden>
-  <h2 class="sec-t">消去の設定</h2>
+  <h2 class="sec-t" data-i18n="secOpts"></h2>
   <div class="opts">
     <div class="opt-in">
-      <label for="optName">FILE_NAME の名称欄を置き換え</label>
-      <input type="text" id="optName" autocomplete="off" spellcheck="false" placeholder="空欄 = パスを除いたファイル名を残す">
+      <label for="optName" data-i18n="optNameLabel"></label>
+      <input type="text" id="optName" autocomplete="off" spellcheck="false" data-i18n-ph="optNamePh">
       <div class="hint" id="nameHint"></div>
     </div>
     <div class="opt-in">
-      <label for="optProduct">PRODUCT 名(部品名)を置き換え</label>
-      <input type="text" id="optProduct" autocomplete="off" spellcheck="false" placeholder="空欄 = 変更しない">
+      <label for="optProduct" data-i18n="optProductLabel"></label>
+      <input type="text" id="optProduct" autocomplete="off" spellcheck="false" data-i18n-ph="optProductPh">
       <div class="hint" id="productHint"></div>
     </div>
     <div class="checks">
-      <label><input type="checkbox" id="optDates" checked>日時を 1970-01-01 00:00 に置き換える(エクスポート日時・作業日)</label>
-      <label><input type="checkbox" id="optComments" checked>コメントを除去する(&quot;Generated by …&quot; など)</label>
-      <label><input type="checkbox" id="optX2" checked>非ASCII文字列を除去する(フィーチャー名など — 作成環境の言語が推定できます)</label>
+      <label><input type="checkbox" id="optDates" checked><span data-i18n="optDates"></span></label>
+      <label><input type="checkbox" id="optComments" checked><span data-i18n="optComments"></span></label>
+      <label><input type="checkbox" id="optX2" checked><span data-i18n="optX2"></span></label>
     </div>
   </div>
   <div class="actionrow">
-    <button id="goBtn" class="primary" type="button">識別情報を消去してダウンロード</button>
+    <button id="goBtn" class="primary" type="button" data-i18n="goBtn"></button>
   </div>
 </section>
 
 <section id="resultSec" class="panel" hidden aria-live="polite">
-  <h2 class="sec-t">消去結果</h2>
-  <div class="done-line">保存しました:<span class="mono" id="outName"></span><a href="#" id="redl" download>再ダウンロード</a></div>
+  <h2 class="sec-t" data-i18n="secResult"></h2>
+  <div class="done-line"><span data-i18n="savedAs"></span><span class="mono" id="outName"></span><a href="#" id="redl" download data-i18n="redl"></a></div>
   <ul class="sumlist" id="sumList"></ul>
-  <div class="sub-t">消去した値</div>
+  <div class="sub-t" data-i18n="subLedger"></div>
   <div class="ledger" id="ledger"></div>
   <div class="actionrow">
-    <button id="resetBtn" class="ghost" type="button">別のファイルを処理</button>
+    <button id="resetBtn" class="ghost" type="button" data-i18n="resetBtn"></button>
   </div>
 </section>
 
 <footer>
-  <h2>仕組み</h2>
-  <p>STEP (ISO 10303-21) をテキストとして解析し、HEADER の FILE_NAME / FILE_DESCRIPTION、DATA の PERSON・ORGANIZATION・住所・日付エンティティ、および非ASCIIエスケープ(\X2\)を含む文字列だけを書き換えます。ジオメトリ・トポロジのレコードは元のバイト列のまま出力されます。</p>
-  <h2>プライバシー</h2>
-  <p>このページは静的な HTML 1 ファイルで、サーバー処理も外部通信も一切ありません(開発者ツールの Network タブで確認できます)。ページを開いたあとは機内モードでも動作します。</p>
-  <h2>限界</h2>
-  <p>メタデータを消しても、エンティティの記述スタイル(いわゆる書き癖)から出力元 CAD がある程度推定できる場合があります。痕跡を完全に断つ必要がある場合は、別の CAD カーネルで読み込んで再エクスポートしてください(形状の再検証を推奨)。</p>
+  <h2 data-i18n="fHow"></h2>
+  <p data-i18n="fHowP"></p>
+  <h2 data-i18n="fPriv"></h2>
+  <p data-i18n="fPrivP"></p>
+  <h2 data-i18n="fLimit"></h2>
+  <p data-i18n="fLimitP"></p>
   <div class="credit">STEP SANITIZER — 100% CLIENT-SIDE / NO UPLOADS / MIT LICENSE</div>
 </footer>
 
@@ -622,8 +636,247 @@ if (typeof module !== 'undefined' && module.exports) {
 (function () {
 'use strict';
 
+/* ---------- i18n ---------- */
+
+const I18N = {
+ja: {
+  title: 'STEP Sanitizer — STEPファイルの識別情報をブラウザ内で除去',
+  lede: 'STEP ファイルには、作成者名・CADソフト・作業日時・フィーチャー名などの識別情報が埋め込まれています。このツールはそれらを検出して除去します。形状データは1バイトも変更しません。',
+  assure1: 'ファイルは送信されません(全処理がブラウザ内)',
+  assure2: 'オフラインでも動作',
+  assure3: 'ジオメトリ無変更',
+  ariaDrop: 'STEPファイルを選択またはドロップ',
+  dropMsg: 'ここにファイルをドロップ、またはクリックして選択',
+  dropMsgAgain: 'ここにファイルをドロップ、またはクリックして選択(別のファイルで再スキャン)',
+  dropSub: 'ISO 10303-21 テキスト形式 / 目安 100 MB 程度まで',
+  analyzing: '解析中… ',
+  secScan: '検出結果', secOpts: '消去の設定', secResult: '消去結果',
+  subLedger: '消去した値',
+  otherSummary: 'その他の文字列(目視チェック用)',
+  optNameLabel: 'FILE_NAME の名称欄を置き換え',
+  optNamePh: '空欄 = パスを除いたファイル名を残す',
+  optProductLabel: 'PRODUCT 名(部品名)を置き換え',
+  optProductPh: '空欄 = 変更しない',
+  optDates: '日時を 1970-01-01 00:00 に置き換える(エクスポート日時・作業日)',
+  optComments: 'コメントを除去する("Generated by …" など)',
+  optX2: '非ASCII文字列を除去する(フィーチャー名など — 作成環境の言語が推定できます)',
+  goBtn: '識別情報を消去してダウンロード',
+  resetBtn: '別のファイルを処理',
+  savedAs: '保存しました:', redl: '再ダウンロード',
+  errZip: 'ZIP圧縮された STEP(.stpZ など)です。解凍してから読み込んでください(CLI版は自動解凍に対応)。',
+  errGzip: 'gzip 圧縮ファイルです。解凍してから読み込んでください。',
+  errHdf: 'バイナリ形式(HDF5 / STEP Part 26)には対応していません。',
+  errXml: 'XML形式(STEP Part 28)には対応していません。',
+  errNotStep: 'STEP ファイル (ISO 10303-21) として認識できませんでした。',
+  errTooBig: '300 MB を超えるファイルには対応していません。CLI 版をご利用ください。',
+  errRead: 'ファイルを読み込めませんでした。',
+  errParse: m => '解析中にエラーが発生しました: ' + m,
+  hdrEmpty: '—(空)',
+  chipFound: '検出', chipEmpty: '空', chipPath: 'パス検出', chipNone: 'なし',
+  chipCount: n => `${n} 件`,
+  noHeader: 'FILE_NAME が見つかりません(非標準ファイル)',
+  findPersons: '個人・組織エンティティ(PERSON / ORGANIZATION / 住所)',
+  findDates: '日付エンティティ(CALENDAR_DATE / LOCAL_TIME)',
+  noteDates: '作業タイムラインが特定できます',
+  findX2: '非ASCII文字列(フィーチャー名など)',
+  noteX2: '作成環境の言語が推定できます',
+  findProduct: 'PRODUCT 名(部品名)',
+  noteProduct: '案件名・型番が含まれることがあります',
+  findComments: 'コメント',
+  hintNamePath: n => `既定でパスを除去し「${n}」を残します。名前自体を変えるなら入力してください。`,
+  hintNameKeep: n => `現在の名称「${n}」は残ります。変えるなら入力してください。`,
+  hintProductX2: 'PRODUCT 名に非ASCII文字が含まれています。置き換えを推奨します。',
+  hintProductCur: s => `現在: ${s}`,
+  sumHeader: 'HEADER: 作成者・組織・出力ソフト・承認者・説明欄を消去',
+  sumDates: n => `日時を 1970-01-01 00:00 に置き換え(HEADER + DATA ${n} 件)`,
+  sumScrub: (c, n) => `${c} の文字列 ${n} 個を消去`,
+  sumX2: n => `非ASCII文字列(フィーチャー名など) ${n} 個を消去`,
+  sumProduct: (p, n) => `PRODUCT 名 → 「${p}」(${n} 件)`,
+  sumComments: n => `コメント ${n} 件を除去`,
+  sumSize: (a, b) => `${a} → ${b}(ジオメトリは無変更)`,
+  ledRemoved: '→ 消去',
+  ledMore: n => `ほか ${n} 件`,
+  ledClean: '消去対象の値はありませんでした(既にクリーンです)',
+  nSoftware: '出力ソフト', nSystem: '作成システム', nAuthor: '作成者', nOrg: '組織',
+  nApprover: '承認者', nTime: '日時', nName: '名称・パス', nFeature: 'フィーチャー名等',
+  nProduct: 'PRODUCT', nComment: 'コメント',
+  fHow: '仕組み',
+  fHowP: 'STEP (ISO 10303-21) をテキストとして解析し、識別情報を含むレコードだけを書き換えます — HEADER の FILE_NAME / FILE_DESCRIPTION、DATA の PERSON・ORGANIZATION・住所・日付エンティティ、および非ASCIIエスケープ(\\X2\\)を含む文字列。ジオメトリ・トポロジのレコードは元のバイト列のまま出力されます。',
+  fPriv: 'プライバシー',
+  fPrivP: 'このページは静的な HTML 1 ファイルで、サーバー処理も外部通信も一切ありません(開発者ツールの Network タブで確認できます)。ページを開いたあとは機内モードでも動作します。',
+  fLimit: '限界',
+  fLimitP: 'メタデータを消しても、エンティティの記述スタイル(書き癖)から出力元 CAD がある程度推定できる場合があります。痕跡を完全に断つ必要がある場合は、別の CAD カーネルで読み込んで再エクスポートしてください(形状の再検証を推奨)。',
+},
+en: {
+  title: 'STEP Sanitizer — Remove identifying metadata from STEP files, in your browser',
+  lede: 'STEP files carry embedded identifying information — author name, CAD software, timestamps, feature names. This tool detects and removes it without changing a single byte of geometry.',
+  assure1: 'Your file is never uploaded (all processing in-browser)',
+  assure2: 'Works offline',
+  assure3: 'Geometry untouched',
+  ariaDrop: 'Choose or drop a STEP file',
+  dropMsg: 'Drop a file here, or click to choose',
+  dropMsgAgain: 'Drop a file here, or click to choose (scan another file)',
+  dropSub: 'ISO 10303-21 text format / up to ~100 MB recommended',
+  analyzing: 'Analyzing… ',
+  secScan: 'SCAN RESULTS', secOpts: 'REMOVAL SETTINGS', secResult: 'RESULT',
+  subLedger: 'REMOVED VALUES',
+  otherSummary: 'Other strings (for manual review)',
+  optNameLabel: 'Replace the FILE_NAME name field',
+  optNamePh: 'Empty = keep filename, strip path',
+  optProductLabel: 'Replace PRODUCT name (part name)',
+  optProductPh: 'Empty = leave unchanged',
+  optDates: 'Replace dates with 1970-01-01 00:00 (export time & work dates)',
+  optComments: 'Remove comments ("Generated by …" etc.)',
+  optX2: 'Remove non-ASCII strings (feature names — they reveal your CAD language)',
+  goBtn: 'Remove & download',
+  resetBtn: 'Process another file',
+  savedAs: 'Saved as:', redl: 'Download again',
+  errZip: 'This is a ZIP-compressed STEP (.stpZ etc.). Unzip it first (the CLI version auto-extracts).',
+  errGzip: 'This is a gzip file. Unzip it first.',
+  errHdf: 'Binary format (HDF5 / STEP Part 26) is not supported.',
+  errXml: 'XML format (STEP Part 28) is not supported.',
+  errNotStep: 'Not recognized as a STEP file (ISO 10303-21).',
+  errTooBig: 'Files over 300 MB are not supported. Please use the CLI version.',
+  errRead: 'Could not read the file.',
+  errParse: m => 'An error occurred while parsing: ' + m,
+  hdrEmpty: '— (empty)',
+  chipFound: 'found', chipEmpty: 'empty', chipPath: 'path found', chipNone: 'none',
+  chipCount: n => `${n} found`,
+  noHeader: 'FILE_NAME not found (non-standard file)',
+  findPersons: 'Person & organization entities (PERSON / ORGANIZATION / address)',
+  findDates: 'Date entities (CALENDAR_DATE / LOCAL_TIME)',
+  noteDates: 'Your work timeline can be identified',
+  findX2: 'Non-ASCII strings (feature names etc.)',
+  noteX2: 'They reveal the language of your CAD environment',
+  findProduct: 'PRODUCT names (part names)',
+  noteProduct: 'May contain project names or part numbers',
+  findComments: 'Comments',
+  hintNamePath: n => `By default the path is stripped, keeping "${n}". Enter a value to rename it.`,
+  hintNameKeep: n => `The current name "${n}" will be kept. Enter a value to change it.`,
+  hintProductX2: 'The PRODUCT name contains non-ASCII characters. Renaming is recommended.',
+  hintProductCur: s => `Current: ${s}`,
+  sumHeader: 'HEADER: removed author, organization, software, approver, description',
+  sumDates: n => `Dates replaced with 1970-01-01 00:00 (HEADER + ${n} in DATA)`,
+  sumScrub: (c, n) => `Cleared ${n} strings in ${c}`,
+  sumX2: n => `Removed ${n} non-ASCII strings (feature names etc.)`,
+  sumProduct: (p, n) => `PRODUCT name → "${p}" (${n})`,
+  sumComments: n => `Removed ${n} comment(s)`,
+  sumSize: (a, b) => `${a} → ${b} (geometry untouched)`,
+  ledRemoved: '→ removed',
+  ledMore: n => `and ${n} more`,
+  ledClean: 'No values needed removal (already clean)',
+  nSoftware: 'software', nSystem: 'system', nAuthor: 'author', nOrg: 'organization',
+  nApprover: 'approver', nTime: 'timestamp', nName: 'name & path', nFeature: 'feature name etc.',
+  nProduct: 'PRODUCT', nComment: 'comment',
+  fHow: 'How it works',
+  fHowP: 'It parses STEP (ISO 10303-21) as text and rewrites only the records containing identifying information — FILE_NAME / FILE_DESCRIPTION in the HEADER; PERSON, ORGANIZATION, address and date entities in DATA; and strings containing non-ASCII \\X2\\ escapes. Geometry and topology records are output byte-for-byte unchanged.',
+  fPriv: 'Privacy',
+  fPrivP: 'This page is a single static HTML file with no server-side processing and no external requests (verify in DevTools → Network). Once loaded, it works in airplane mode.',
+  fLimit: 'Limitations',
+  fLimitP: 'Even with metadata removed, the exporting CAD can sometimes be inferred from entity writing style. For complete trace removal, re-export through another CAD kernel and re-verify the geometry.',
+},
+zh: {
+  title: 'STEP Sanitizer — 在浏览器内移除 STEP 文件中的身份识别信息',
+  lede: 'STEP 文件中嵌入了作者姓名、CAD 软件、工作时间、特征名等身份信息。本工具可检测并移除这些信息,几何数据一个字节都不会改动。',
+  assure1: '文件不会被上传(全部在浏览器内处理)',
+  assure2: '可离线使用',
+  assure3: '几何数据零改动',
+  ariaDrop: '选择或拖入 STEP 文件',
+  dropMsg: '将文件拖到此处,或点击选择',
+  dropMsgAgain: '将文件拖到此处,或点击选择(可再扫描其他文件)',
+  dropSub: 'ISO 10303-21 文本格式 / 建议 100 MB 以内',
+  analyzing: '正在解析… ',
+  secScan: '检测结果', secOpts: '清除设置', secResult: '清除结果',
+  subLedger: '已清除的值',
+  otherSummary: '其他字符串(供人工检查)',
+  optNameLabel: '替换 FILE_NAME 名称字段',
+  optNamePh: '留空 = 仅去除路径,保留文件名',
+  optProductLabel: '替换 PRODUCT 名(零件名)',
+  optProductPh: '留空 = 不修改',
+  optDates: '将日期替换为 1970-01-01 00:00(导出时间与工作日期)',
+  optComments: '移除注释("Generated by …" 等)',
+  optX2: '移除非 ASCII 字符串(特征名等——会暴露建模环境的语言)',
+  goBtn: '清除并下载',
+  resetBtn: '处理其他文件',
+  savedAs: '已保存:', redl: '重新下载',
+  errZip: '这是 ZIP 压缩的 STEP(.stpZ 等)。请先解压(命令行版可自动解压)。',
+  errGzip: '这是 gzip 压缩文件,请先解压。',
+  errHdf: '不支持二进制格式(HDF5 / STEP Part 26)。',
+  errXml: '不支持 XML 格式(STEP Part 28)。',
+  errNotStep: '无法识别为 STEP 文件(ISO 10303-21)。',
+  errTooBig: '不支持超过 300 MB 的文件,请使用命令行版。',
+  errRead: '无法读取文件。',
+  errParse: m => '解析时发生错误:' + m,
+  hdrEmpty: '—(空)',
+  chipFound: '检出', chipEmpty: '空', chipPath: '检出路径', chipNone: '无',
+  chipCount: n => `${n} 处`,
+  noHeader: '未找到 FILE_NAME(非标准文件)',
+  findPersons: '个人与组织实体(PERSON / ORGANIZATION / 地址)',
+  findDates: '日期实体(CALENDAR_DATE / LOCAL_TIME)',
+  noteDates: '可据此推断工作时间线',
+  findX2: '非 ASCII 字符串(特征名等)',
+  noteX2: '会暴露建模环境的语言',
+  findProduct: 'PRODUCT 名(零件名)',
+  noteProduct: '可能包含项目名或型号',
+  findComments: '注释',
+  hintNamePath: n => `默认去除路径,保留“${n}”。如需改名请在此输入。`,
+  hintNameKeep: n => `当前名称“${n}”将保留。如需修改请输入。`,
+  hintProductX2: 'PRODUCT 名包含非 ASCII 字符,建议替换。',
+  hintProductCur: s => `当前:${s}`,
+  sumHeader: 'HEADER:已清除作者、组织、导出软件、审批人、描述',
+  sumDates: n => `日期已替换为 1970-01-01 00:00(HEADER + DATA 中 ${n} 处)`,
+  sumScrub: (c, n) => `已清除 ${c} 中的 ${n} 个字符串`,
+  sumX2: n => `已移除 ${n} 个非 ASCII 字符串(特征名等)`,
+  sumProduct: (p, n) => `PRODUCT 名 → “${p}”(${n} 处)`,
+  sumComments: n => `已移除 ${n} 条注释`,
+  sumSize: (a, b) => `${a} → ${b}(几何数据未改动)`,
+  ledRemoved: '→ 已清除',
+  ledMore: n => `另有 ${n} 项`,
+  ledClean: '没有需要清除的值(文件已干净)',
+  nSoftware: '导出软件', nSystem: '系统', nAuthor: '作者', nOrg: '组织',
+  nApprover: '审批人', nTime: '时间', nName: '名称与路径', nFeature: '特征名等',
+  nProduct: 'PRODUCT', nComment: '注释',
+  fHow: '工作原理',
+  fHowP: '将 STEP(ISO 10303-21)作为文本解析,只改写包含身份信息的记录——HEADER 中的 FILE_NAME / FILE_DESCRIPTION,DATA 中的 PERSON、ORGANIZATION、地址与日期实体,以及含 \\X2\\ 转义的非 ASCII 字符串。几何与拓扑记录逐字节原样输出。',
+  fPriv: '隐私',
+  fPrivP: '本页面是单个静态 HTML 文件,没有任何服务器端处理与外部请求(可在开发者工具 → Network 面板验证)。加载后开飞行模式也能使用。',
+  fLimit: '局限',
+  fLimitP: '即使清除了元数据,仍可能从实体的书写风格推断出导出软件。如需彻底消除痕迹,请用其他 CAD 内核重新导出并复核几何。',
+},
+};
+
+const LS_KEY = 'stepsan.lang';
+
+function detectLang() {
+  try {
+    const q = new URLSearchParams(location.search).get('lang');
+    if (q && I18N[q]) return q;
+  } catch (e) {}
+  try {
+    const saved = localStorage.getItem(LS_KEY);
+    if (saved && I18N[saved]) return saved;
+  } catch (e) {}
+  const nav = (navigator.language || 'en').toLowerCase();
+  if (nav.startsWith('ja')) return 'ja';
+  if (nav.startsWith('zh')) return 'zh';
+  return 'en';
+}
+
+let LANG = detectLang();
+
+function t(key, ...args) {
+  const v = (I18N[LANG] && I18N[LANG][key]) ?? I18N.ja[key] ?? key;
+  return typeof v === 'function' ? v(...args) : v;
+}
+
+/* ---------- 状態・ヘルパ ---------- */
+
 const $ = id => document.getElementById(id);
-const state = { text: null, fileName: null, rep: null, blobUrl: null, lastBytes: null };
+const state = {
+  text: null, fileName: null, fileSize: 0, recordCount: 0,
+  rep: null, blobUrl: null, lastBytes: null, lastResult: null,
+};
+let dropState = 'idle'; // idle | again | busy
 
 function el(tag, cls, text) {
   const e = document.createElement(tag);
@@ -635,7 +888,38 @@ const trunc = (s, w = 110) => {
   s = s.replace(/\s+/g, ' ');
   return s.length <= w ? s : s.slice(0, w - 1) + '…';
 };
-const fmtBytes = n => n.toLocaleString('ja-JP') + ' bytes';
+const fmtBytes = n => n.toLocaleString('en-US') + ' bytes';
+
+/* ---------- 言語適用 ---------- */
+
+function applyStatic() {
+  document.documentElement.lang = LANG === 'zh' ? 'zh-CN' : LANG;
+  document.title = t('title');
+  document.querySelectorAll('[data-i18n]').forEach(n => { n.textContent = t(n.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(n => { n.placeholder = t(n.dataset.i18nPh); });
+  document.querySelectorAll('[data-i18n-aria]').forEach(n => { n.setAttribute('aria-label', t(n.dataset.i18nAria)); });
+  document.querySelectorAll('.langs button').forEach(b => {
+    b.setAttribute('aria-pressed', b.dataset.lang === LANG ? 'true' : 'false');
+  });
+  if (dropState !== 'busy') {
+    $('dropMsg').textContent = t(dropState === 'again' ? 'dropMsgAgain' : 'dropMsg');
+  }
+}
+
+function switchLang(l) {
+  if (!I18N[l] || l === LANG) return;
+  LANG = l;
+  try { localStorage.setItem(LS_KEY, l); } catch (e) {}
+  applyStatic();
+  if (state.rep) {
+    renderReport(state.rep, state.fileName, state.fileSize, state.recordCount);
+    renderOptionHints(state.rep);
+  }
+  if (state.lastResult && !$('resultSec').hidden) {
+    const r = state.lastResult;
+    renderResult(r.rep, r.opts, r.outName, r.inSize, r.outSize);
+  }
+}
 
 /* ---------- ファイル読み込み ---------- */
 
@@ -648,14 +932,18 @@ function showErr(msg) {
 
 function resetAll() {
   if (state.blobUrl) URL.revokeObjectURL(state.blobUrl);
-  Object.assign(state, { text: null, fileName: null, rep: null, blobUrl: null, lastBytes: null });
+  Object.assign(state, {
+    text: null, fileName: null, fileSize: 0, recordCount: 0,
+    rep: null, blobUrl: null, lastBytes: null, lastResult: null,
+  });
   ['reportSec', 'optSec', 'resultSec'].forEach(id => { $(id).hidden = true; });
   errEl.hidden = true;
   $('optName').value = '';
   $('optProduct').value = '';
   $('optDates').checked = $('optComments').checked = $('optX2').checked = true;
-  $('dropMsg').textContent = 'ここにファイルをドロップ、またはクリックして選択';
+  dropState = 'idle';
   drop.classList.remove('busy');
+  applyStatic();
   drop.focus();
 }
 
@@ -663,67 +951,66 @@ function pickFile(file) {
   errEl.hidden = true;
   if (!file) return;
   if (file.size > 300 * 1024 * 1024) {
-    showErr('300 MB を超えるファイルには対応していません。CLI 版をご利用ください。');
+    showErr(t('errTooBig'));
     return;
   }
+  dropState = 'busy';
   drop.classList.add('busy');
-  $('dropMsg').textContent = '解析中… ' + file.name;
+  $('dropMsg').textContent = t('analyzing') + file.name;
   const reader = new FileReader();
-  reader.onerror = () => { showErr('ファイルを読み込めませんでした。'); resetDropMsg(); };
+  reader.onerror = () => { showErr(t('errRead')); endBusy(); };
   reader.onload = () => {
-    // 描画を挟んでから重い処理へ
-    setTimeout(() => {
+    setTimeout(() => {  // 描画を挟んでから重い処理へ
       try {
         loadBytes(file.name, new Uint8Array(reader.result));
       } catch (e) {
-        showErr('解析中にエラーが発生しました: ' + e.message);
+        showErr(t('errParse', e.message));
       }
-      resetDropMsg();
+      endBusy();
     }, 30);
   };
   reader.readAsArrayBuffer(file);
 }
 
-function resetDropMsg() {
+function endBusy() {
+  dropState = 'again';
   drop.classList.remove('busy');
-  $('dropMsg').textContent = 'ここにファイルをドロップ、またはクリックして選択(別のファイルで再スキャン)';
+  $('dropMsg').textContent = t('dropMsgAgain');
 }
 
 function loadBytes(name, u8) {
   // 形式判定(マジックバイト)
   if (u8.length >= 4 && u8[0] === 0x50 && u8[1] === 0x4B && u8[2] === 0x03 && u8[3] === 0x04) {
-    showErr('ZIP圧縮された STEP(.stpZ など)です。解凍してから読み込んでください(CLI版は自動解凍に対応)。');
-    return;
+    showErr(t('errZip')); return;
   }
   if (u8.length >= 2 && u8[0] === 0x1F && u8[1] === 0x8B) {
-    showErr('gzip 圧縮ファイルです。解凍してから読み込んでください。');
-    return;
+    showErr(t('errGzip')); return;
   }
   if (u8.length >= 4 && u8[0] === 0x89 && u8[1] === 0x48 && u8[2] === 0x44 && u8[3] === 0x46) {
-    showErr('バイナリ形式(HDF5 / STEP Part 26)には対応していません。');
-    return;
+    showErr(t('errHdf')); return;
   }
   const text = bytesToLatin1(u8);
   const head = text.slice(0, 300);
   if (/^\s*(?:\u00EF\u00BB\u00BF)?\s*<\?xml/.test(head)) {
-    showErr('XML形式(STEP Part 28)には対応していません。');
-    return;
+    showErr(t('errXml')); return;
   }
   const first = head.replace(/^\u00EF\u00BB\u00BF/, '').split(';')[0].trim().toUpperCase();
   if (first !== 'ISO-10303-21') {
-    showErr('STEP ファイル (ISO 10303-21) として認識できませんでした。');
-    return;
+    showErr(t('errNotStep')); return;
   }
   if (state.blobUrl) { URL.revokeObjectURL(state.blobUrl); state.blobUrl = null; }
   state.text = text;
   state.fileName = name;
+  state.fileSize = u8.length;
   const { rep, recordCount } = process(text, {
     scan: true, name: null, keepName: false,
     keepDates: false, keepComments: false, keepX2: false, product: null,
   });
   state.rep = rep;
+  state.recordCount = recordCount;
+  state.lastResult = null;
   renderReport(rep, name, u8.length, recordCount);
-  renderOptionHints(rep, name);
+  renderOptionHints(rep);
   $('resultSec').hidden = true;
   $('reportSec').hidden = false;
   $('optSec').hidden = false;
@@ -739,12 +1026,13 @@ function hdrRow(tbody, label, rawValue, hit) {
   const tr = el('tr', hit ? 'hit' : null);
   tr.appendChild(el('td', 'k', label));
   const v = el('td', 'v' + (rawValue ? '' : ' empty'));
-  v.textContent = rawValue ? trunc(displayStr(rawValue)) : '—(空)';
+  v.textContent = rawValue ? trunc(displayStr(rawValue)) : t('hdrEmpty');
   tr.appendChild(v);
   const c = el('td', 'c');
-  c.appendChild(el('span', 'chip ' + (hit ? 'mark' : 'ok'), hit ? '検出' : '空'));
+  c.appendChild(el('span', 'chip ' + (hit ? 'mark' : 'ok'), hit ? t('chipFound') : t('chipEmpty')));
   tr.appendChild(c);
   tbody.appendChild(tr);
+  return tr;
 }
 
 function findRow(parent, label, hit, chipText, note) {
@@ -760,15 +1048,15 @@ function findRow(parent, label, hit, chipText, note) {
 
 function renderReport(rep, name, size, recordCount) {
   $('fileLine').textContent =
-    `${name} ・ ${fmtBytes(size)} ・ ${recordCount.toLocaleString('ja-JP')} records`;
+    `${name} ・ ${fmtBytes(size)} ・ ${recordCount.toLocaleString('en-US')} records`;
 
   const tb = $('hdrBody');
   tb.textContent = '';
   const h = rep.header;
   if (h) {
     const hasPath = /[\\/]/.test(h.name);
-    hdrRow(tb, 'name', h.name, !!h.name);
-    if (hasPath) tb.lastChild.querySelector('.chip').textContent = 'パス検出';
+    const nameRow = hdrRow(tb, 'name', h.name, !!h.name);
+    if (hasPath) nameRow.querySelector('.chip').textContent = t('chipPath');
     hdrRow(tb, 'timestamp', h.timestamp, !!h.timestamp);
     hdrRow(tb, 'author', isEmptyList(h.author) ? '' : h.author, !isEmptyList(h.author));
     hdrRow(tb, 'organization', isEmptyList(h.organization) ? '' : h.organization, !isEmptyList(h.organization));
@@ -777,44 +1065,40 @@ function renderReport(rep, name, size, recordCount) {
     hdrRow(tb, 'authorisation', h.authorisation, !!h.authorisation);
   } else {
     const tr = el('tr');
-    tr.appendChild(el('td', null, 'FILE_NAME が見つかりません(非標準ファイル)'));
+    tr.appendChild(el('td', null, t('noHeader')));
     tb.appendChild(tr);
   }
 
   const db = $('dataBody');
   db.textContent = '';
 
-  // 個人・組織
   const scrubKeys = Object.keys(rep.scrubbed);
   const scrubTotal = scrubKeys.reduce((a, k) => a + rep.scrubbed[k], 0);
-  const r1 = findRow(db, '個人・組織エンティティ(PERSON / ORGANIZATION / 住所)',
-    scrubTotal > 0, scrubTotal > 0 ? `${scrubTotal} 件` : 'なし');
+  const r1 = findRow(db, t('findPersons'),
+    scrubTotal > 0, scrubTotal > 0 ? t('chipCount', scrubTotal) : t('chipNone'));
   if (rep.samples.length) {
     const fx = el('div', 'fx');
     rep.samples.slice(0, 3).forEach(s => fx.appendChild(el('div', 'samp', trunc(displayStr(s)))));
     r1.appendChild(fx);
   }
 
-  // 日付
-  findRow(db, '日付エンティティ(CALENDAR_DATE / LOCAL_TIME)',
-    rep.dates > 0, rep.dates > 0 ? `${rep.dates} 件` : 'なし',
-    rep.dates > 0 ? '作業タイムラインが特定できます' : null);
+  findRow(db, t('findDates'),
+    rep.dates > 0, rep.dates > 0 ? t('chipCount', rep.dates) : t('chipNone'),
+    rep.dates > 0 ? t('noteDates') : null);
 
-  // 非ASCII
   const x2u = [...new Set(rep.x2Strings.map(displayStr))];
-  const r3 = findRow(db, '非ASCII文字列(フィーチャー名など)',
-    rep.x2Found > 0, rep.x2Found > 0 ? `${rep.x2Found} 件` : 'なし',
-    rep.x2Found > 0 ? '作成環境の言語が推定できます' : null);
+  const r3 = findRow(db, t('findX2'),
+    rep.x2Found > 0, rep.x2Found > 0 ? t('chipCount', rep.x2Found) : t('chipNone'),
+    rep.x2Found > 0 ? t('noteX2') : null);
   if (x2u.length) {
     const fx = el('div', 'fx tagrow');
     x2u.slice(0, 12).forEach(v => fx.appendChild(el('span', 'tag bad', trunc(v, 40))));
     r3.appendChild(fx);
   }
 
-  // PRODUCT
-  const r4 = findRow(db, 'PRODUCT 名(部品名)',
-    rep.products.length > 0, rep.products.length ? `${rep.products.length} 件` : 'なし',
-    rep.products.length ? '案件名・型番が含まれることがあります' : null);
+  const r4 = findRow(db, t('findProduct'),
+    rep.products.length > 0, rep.products.length ? t('chipCount', rep.products.length) : t('chipNone'),
+    rep.products.length ? t('noteProduct') : null);
   if (rep.products.length) {
     const fx = el('div', 'fx tagrow');
     [...new Set(rep.products.map(displayStr))].slice(0, 8)
@@ -822,16 +1106,14 @@ function renderReport(rep, name, size, recordCount) {
     r4.appendChild(fx);
   }
 
-  // コメント
-  const r5 = findRow(db, 'コメント',
-    rep.comments.length > 0, rep.comments.length ? `${rep.comments.length} 件` : 'なし');
+  const r5 = findRow(db, t('findComments'),
+    rep.comments.length > 0, rep.comments.length ? t('chipCount', rep.comments.length) : t('chipNone'));
   if (rep.comments.length) {
     const fx = el('div', 'fx');
     rep.comments.slice(0, 3).forEach(s => fx.appendChild(el('div', 'samp', trunc(displayStr(s)))));
     r5.appendChild(fx);
   }
 
-  // その他の文字列
   const others = [...rep.dataStrings.entries()].sort((a, b) => b[1] - a[1]).slice(0, 20);
   $('otherWrap').hidden = others.length === 0;
   const ol = $('otherList');
@@ -839,22 +1121,23 @@ function renderReport(rep, name, size, recordCount) {
   others.forEach(([v, n]) => ol.appendChild(el('div', null, `${n}× ${trunc(displayStr(v), 88)}`)));
 }
 
-function renderOptionHints(rep, name) {
+function renderOptionHints(rep) {
   const nh = $('nameHint'), ph = $('productHint');
   nh.className = 'hint';
   ph.className = 'hint';
   if (rep.header && /[\\/]/.test(rep.header.name)) {
-    nh.textContent = `既定でパスを除去し「${displayStr(rep.header.name.split(/[\\/]/).pop())}」を残します。名前自体を変えるなら入力してください。`;
+    nh.textContent = t('hintNamePath', displayStr(rep.header.name.split(/[\\/]/).pop()));
   } else if (rep.header && rep.header.name) {
-    nh.textContent = `現在の名称「${trunc(displayStr(rep.header.name), 60)}」は残ります。変えるなら入力してください。`;
+    nh.textContent = t('hintNameKeep', trunc(displayStr(rep.header.name), 60));
   } else {
     nh.textContent = '';
   }
   if (rep.products.some(p => /\\X[24]\\/.test(p))) {
-    ph.textContent = 'PRODUCT 名に非ASCII文字が含まれています。置き換えを推奨します。';
+    ph.textContent = t('hintProductX2');
     ph.className = 'hint warn';
   } else if (rep.products.length) {
-    ph.textContent = `現在: ${[...new Set(rep.products.map(displayStr))].slice(0, 3).map(trunc).join(' / ')}`;
+    ph.textContent = t('hintProductCur',
+      [...new Set(rep.products.map(displayStr))].slice(0, 3).map(s => trunc(s)).join(' / '));
   } else {
     ph.textContent = '';
   }
@@ -893,6 +1176,7 @@ function sanitize() {
   a.click();
   a.remove();
 
+  state.lastResult = { rep, opts, outName, inSize: state.text.length, outSize: bytes.length };
   renderResult(rep, opts, outName, state.text.length, bytes.length);
   $('resultSec').hidden = false;
   $('resultSec').classList.add('reveal');
@@ -907,47 +1191,44 @@ function renderResult(rep, opts, outName, inSize, outSize) {
 
   const sl = $('sumList');
   sl.textContent = '';
-  const add = t => sl.appendChild(el('li', null, t));
-  if (rep.header) add('HEADER: 作成者・組織・出力ソフト・承認者・説明欄を消去');
-  if (!opts.keepDates) {
-    add(`日時を 1970-01-01 00:00 に置き換え(HEADER + DATA ${rep.datesChanged} 件)`);
-  }
+  const add = txt => sl.appendChild(el('li', null, txt));
+  if (rep.header) add(t('sumHeader'));
+  if (!opts.keepDates) add(t('sumDates', rep.datesChanged));
   if (rep.stringsBlanked) {
     const c = Object.entries(rep.scrubbed).map(([k, v]) => `${k}×${v}`).join(' ');
-    add(`${c} の文字列 ${rep.stringsBlanked} 個を消去`);
+    add(t('sumScrub', c, rep.stringsBlanked));
   }
-  if (rep.x2Blanked) add(`非ASCII文字列(フィーチャー名など) ${rep.x2Blanked} 個を消去`);
-  if (rep.productRenamed) add(`PRODUCT 名 → 「${opts.product}」(${rep.productRenamed} 件)`);
-  if (rep.comments.length && !opts.keepComments) add(`コメント ${rep.comments.length} 件を除去`);
-  add(`${fmtBytes(inSize)} → ${fmtBytes(outSize)}(ジオメトリは無変更)`);
+  if (rep.x2Blanked) add(t('sumX2', rep.x2Blanked));
+  if (rep.productRenamed) add(t('sumProduct', opts.product, rep.productRenamed));
+  if (rep.comments.length && !opts.keepComments) add(t('sumComments', rep.comments.length));
+  add(t('sumSize', fmtBytes(inSize), fmtBytes(outSize)));
 
-  // 消去台帳
   const lg = $('ledger');
   lg.textContent = '';
   const items = [];
   const h = rep.header;
   if (h) {
-    if (h.preprocessor) items.push([h.preprocessor, '出力ソフト']);
-    if (h.originatingSystem) items.push([h.originatingSystem, '作成システム']);
-    if (!isEmptyList(h.author)) items.push([h.author, '作成者']);
-    if (!isEmptyList(h.organization)) items.push([h.organization, '組織']);
-    if (h.authorisation) items.push([h.authorisation, '承認者']);
-    if (!opts.keepDates && h.timestamp) items.push([h.timestamp, '日時']);
-    if (h.name && (opts.name || /[\\/]/.test(h.name))) items.push([h.name, '名称/パス']);
+    if (h.preprocessor) items.push([h.preprocessor, t('nSoftware')]);
+    if (h.originatingSystem) items.push([h.originatingSystem, t('nSystem')]);
+    if (!isEmptyList(h.author)) items.push([h.author, t('nAuthor')]);
+    if (!isEmptyList(h.organization)) items.push([h.organization, t('nOrg')]);
+    if (h.authorisation) items.push([h.authorisation, t('nApprover')]);
+    if (!opts.keepDates && h.timestamp) items.push([h.timestamp, t('nTime')]);
+    if (h.name && (opts.name || /[\\/]/.test(h.name))) items.push([h.name, t('nName')]);
   }
-  if (!opts.keepX2) [...new Set(rep.x2Strings)].forEach(v => items.push([v, 'フィーチャー名等']));
-  if (rep.productRenamed) [...new Set(rep.products)].forEach(v => items.push([v, 'PRODUCT']));
-  if (!opts.keepComments) rep.comments.forEach(v => items.push([v, 'コメント']));
+  if (!opts.keepX2) [...new Set(rep.x2Strings)].forEach(v => items.push([v, t('nFeature')]));
+  if (rep.productRenamed) [...new Set(rep.products)].forEach(v => items.push([v, t('nProduct')]));
+  if (!opts.keepComments) rep.comments.forEach(v => items.push([v, t('nComment')]));
 
   items.slice(0, 14).forEach(([v, n]) => {
     const row = el('div', 'led');
     row.appendChild(el('span', 'lo', trunc(displayStr(v), 84)));
-    row.appendChild(el('span', 'arr', '→ 消去'));
+    row.appendChild(el('span', 'arr', t('ledRemoved')));
     row.appendChild(el('span', 'ln', n));
     lg.appendChild(row);
   });
-  if (items.length > 14) lg.appendChild(el('div', 'led-more', `ほか ${items.length - 14} 件`));
-  if (!items.length) lg.appendChild(el('div', 'led-more', '消去対象の値はありませんでした(既にクリーンです)'));
+  if (items.length > 14) lg.appendChild(el('div', 'led-more', t('ledMore', items.length - 14)));
+  if (!items.length) lg.appendChild(el('div', 'led-more', t('ledClean')));
 }
 
 /* ---------- イベント ---------- */
@@ -966,9 +1247,13 @@ document.addEventListener('dragover', e => e.preventDefault());
 document.addEventListener('drop', e => e.preventDefault());
 $('goBtn').addEventListener('click', sanitize);
 $('resetBtn').addEventListener('click', resetAll);
+document.querySelectorAll('.langs button').forEach(b =>
+  b.addEventListener('click', () => switchLang(b.dataset.lang)));
+
+applyStatic();
 
 /* テスト用フック(挙動には影響しません) */
-window.__stepsan = { loadBytes, sanitize, state };
+window.__stepsan = { loadBytes, sanitize, switchLang, state, get lang() { return LANG; } };
 
 })();
 </script>

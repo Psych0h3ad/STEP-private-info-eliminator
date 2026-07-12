@@ -10,6 +10,8 @@
 >
 > 在浏览器内移除 STEP 文件中的身份识别信息 — 零上传、可离线使用
 
+UI: 日本語 / English / 中文(自動判定・切替可 / auto-detected, switchable / 自动检测、可切换)
+
 ```
 index.html         Web app(単一ファイル / single file / 单文件)
 step_sanitize.py   CLI(Python 3.8+, no dependencies / 依存なし / 零依赖)
